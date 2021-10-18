@@ -1,11 +1,12 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+import 'package:provider/provider.dart';
 
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import '../widgets/product_item.dart';
 import 'product.dart';
 
 class Products with ChangeNotifier {
-
   List<Product> _items = [
     Product(
       id: 'p1',
@@ -40,23 +41,24 @@ class Products with ChangeNotifier {
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     ),
   ];
-  
+
   var _showFavoritesOnly = false;
+
+
+
 
   List<Product> get items {
     // if(_showFavoritesOnly){
-    // return _items.where((item) => 
+    // return _items.where((item) =>
     // (item.isFavorite)).toList();
     // }
     // else {}
-      return [..._items];
-  
+    return [..._items];
   }
 
-  List<Product> get favoriteItems{
+  List<Product> get favoriteItems {
     return _items.where((prod) => prod.isFavorite).toList();
   }
-
 
   // void showFavorites(){
   //   _showFavoritesOnly = true;
@@ -67,45 +69,86 @@ class Products with ChangeNotifier {
   //   notifyListeners();
   // }
 
-
   Product findById(String id) {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  void addProducts(Product product,String id){
-    final newProduct1 =  
-    Product(
-      title: product.title,
-      description: product.description,
-      id: DateTime.now().toString(), 
-      price: product.price, 
-      imageUrl: product.imageUrl,
-      isFavorite: product.isFavorite,
-    );
-    _items.removeWhere((prod) => prod.id==id);
-    //_items.add(newProduct1);
-    _items.insert(0,newProduct1);
-    notifyListeners();
-  }
 
-  void updateProducts(String id, Product newProduct){
-     //_items.add(newProduct);
-      _items.removeWhere((prod) => prod.id==id);
-   final prodIndex = _items.indexWhere((prod) 
-   => 
-   prod.id == id
-   );
-   if(prodIndex >= 0){
-      _items[prodIndex] = newProduct;
-      notifyListeners();
-      }
-    else{
-      print('...');
-    }   
+  Future<void> fetchAndSetProducts() async {
+    final Uri url = Uri.https(
+        'shopstop-a9a9a-default-rtdb.firebaseio.com','/products.json');
+    try{
+      
+      final response = await http.get(url);
+    
+    }
+    catch(error){
+      rethrow;
     }
 
+  }   
+
+
+  Future<void>addProducts(Product product, String id) async {
+//============================== Server DB Management ==================================================================
+    var response;
+    final Uri url = Uri.https(
+        'shopstop-a9a9a-default-rtdb.firebaseio.com','/products.json');
+    try{
+    final response1 = //adds the following code to response, await makes it return a future to save
+    await http.post(
+      url,
+      body: json.encode(
+        {
+          'title': product.title,
+          'description': product.description,
+          'imageUrl': product.imageUrl,
+          'price': product.price,
+          'isFavorite': product.isFavorite,
+          // 'id':
+        }
+      ),
+    );
+    response=response1;
+    } catch(error){
+        rethrow;
+    }
+
+    var xid= json.decode(response.body);
+    final newProduct1 = Product(
+    title: product.title,
+      description: product.description,
+      id: xid['name'],
+      price: product.price,
+      imageUrl: product.imageUrl,
+      isFavorite: product.isFavorite,
+    );  
+    _items.removeWhere((prod) => prod.id == id);
+    //_items.add(newProduct1);
+    _items.insert(0, newProduct1);
+    notifyListeners();
+    
+    
+    }
+ 
+
+//======================================================================================================================
+ 
+
+  void updateProducts(String id, Product newProduct) {
+    //_items.add(newProduct);
+    _items.removeWhere((prod) => prod.id == id);
+    final prodIndex = _items.indexWhere((prod) => prod.id == id);
+    if (prodIndex >= 0) {
+      _items[prodIndex] = newProduct;
+      notifyListeners();
+    } else {
+      print('...');
+    }
+  }
+
   void deleteProduct(String id) {
-    _items.removeWhere((prod) => prod.id==id);
+    _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
   }
 }
