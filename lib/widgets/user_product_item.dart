@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import '../screens/edit_product.dart';
+import 'package:provider/provider.dart';
+import '../providers/products.dart';
 
 class UserProductItem extends StatelessWidget {
   //const UserProductItem({ Key? key }) : super(key: key);
   final String title;
+  final String id;
   final String imageUrl;
-  UserProductItem(this.title, this.imageUrl);
+   
+  UserProductItem(this.title, this.imageUrl, this.id);
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -21,12 +25,14 @@ class UserProductItem extends StatelessWidget {
           children: [
             IconButton(
                 onPressed: () {
-                   Navigator.of(context).pushNamed(EditProduct.routeName);
+                   Navigator.of(context).pushNamed(EditProduct.routeName, arguments: id);
                 },
                 icon: const Icon(Icons.edit),
                 color: Theme.of(context).primaryColor),
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Provider.of<Products>(context, listen: false).deleteProduct(id);
+                },
                 icon: const Icon(Icons.delete),
                 color: Theme.of(context).errorColor),
           ],
