@@ -47,7 +47,7 @@ class _ProductsOverviewState extends State<ProductsOverview> {
             },  
           icon:const Icon(Icons.more_vert_rounded),
           itemBuilder: (_) => [
-            const PopupMenuItem(child: Text('Favorites'), value: filterOptions.favorites),
+            const PopupMenuItem(child: Text('Wishlist'), value: filterOptions.favorites),
             const PopupMenuItem(child: Text('All'), value: filterOptions.all)
           ]
           ,),

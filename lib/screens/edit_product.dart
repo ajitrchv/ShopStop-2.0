@@ -104,15 +104,19 @@ class _EditProductState extends State<EditProduct> {
       return;
     }
     _form.currentState!.save();
-    if(_editedProduct.id != null) {
+    //if(_editedProduct.id != null) {
+      
+      
       Provider.of<Products>(context, listen: false).addProducts(_editedProduct,_editedProduct.id);
+      
+      
       //Provider.of<Products>(context, listen: false).updateProducts(_editedProduct.id,_editedProduct);
-    }
-    else{
-      Provider.of<Products>(context, listen: false).updateProducts(_editedProduct.id,_editedProduct);
-      //Provider.of<Products>(context, listen: false).addProducts(_editedProduct);
-       ///setState(() {});
-      }
+    //}
+    // else{
+    //   Provider.of<Products>(context, listen: false).updateProducts(_editedProduct.id,_editedProduct);
+    //   //Provider.of<Products>(context, listen: false).addProducts(_editedProduct);
+    //    ///setState(() {});
+    //   }
     setState(() {});
     Navigator.of(context).pop();
 

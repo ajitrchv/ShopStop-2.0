@@ -80,9 +80,9 @@ class Products with ChangeNotifier {
       id: DateTime.now().toString(), 
       price: product.price, 
       imageUrl: product.imageUrl,
+      isFavorite: product.isFavorite,
     );
     _items.removeWhere((prod) => prod.id==id);
-    print('==================');
     //_items.add(newProduct1);
     _items.insert(0,newProduct1);
     notifyListeners();
