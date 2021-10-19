@@ -168,7 +168,7 @@ class Products with ChangeNotifier {
         imageUrl: product.imageUrl,
         isFavorite: product.isFavorite,
       );
-
+      deleteProduct(id);
       notifyListeners();
     } catch (error) {
       rethrow;

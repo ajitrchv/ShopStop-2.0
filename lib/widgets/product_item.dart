@@ -57,7 +57,7 @@ class productItem extends StatelessWidget {
                   ? const Icon(Icons.favorite_rounded)
                   : const Icon(Icons.favorite_outline_sharp)),
               onPressed: () {
-                product.toggleFavoriteStatus();
+                product.toggleFavoriteStatus(product.id);
               },
               // ignore: deprecated_member_use
               color: Theme.of(context).accentColor,
