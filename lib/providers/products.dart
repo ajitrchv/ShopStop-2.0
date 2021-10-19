@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:provider/provider.dart';
 
 import 'package:flutter/cupertino.dart';
@@ -82,7 +83,7 @@ class Products with ChangeNotifier {
       final List<Product> loadedProd = [];
       extractedData.forEach((prodId, prodData) {
         // print(prodId);
-        print(prodData['description'],);
+        // print(prodData['description'],);
         // print(prodData['price']);
         // print(prodData['imageUrl']);
         loadedProd.insert(0,Product(
@@ -95,7 +96,7 @@ class Products with ChangeNotifier {
         ));
       });
       _items = loadedProd;
-      print(loadedProd);
+      //print(loadedProd);
       notifyListeners();
     } catch (error) {
      rethrow;
@@ -106,8 +107,44 @@ class Products with ChangeNotifier {
 //============================== Server DB Management ==================================================================
     var response;
     var newProduct1;
+    if(id != ''){
     final Uri url =
-        Uri.parse('shopstop-a9a9a-default-rtdb.firebaseio.com/products.json');
+        Uri.https(
+        'shopstop-a9a9a-default-rtdb.firebaseio.com', '/products.json');
+    try {
+      final response1 = //adds the following code to response, await makes it return a future to save
+          await http.post(
+        url,
+        body: json.encode({
+          'title': product.title,
+          'description': product.description,
+          'imageUrl': product.imageUrl,
+          'price': product.price,
+          'isFavorite': product.isFavorite,
+          // 'id':
+        }),
+      );
+      response = response1;
+      var xid = json.decode(response.body);
+        newProduct1 = Product(
+        title: product.title,
+        description: product.description,
+        id: xid['name'],
+        price: product.price,
+        imageUrl: product.imageUrl,
+        isFavorite: product.isFavorite,
+      );
+      deleteProduct(id);
+      notifyListeners();
+    } catch (error) {
+      rethrow;
+    }
+    }
+    //========================================================================
+    else{
+    final Uri url =
+        Uri.https(
+        'shopstop-a9a9a-default-rtdb.firebaseio.com', '/products.json');
     try {
       final response1 = //adds the following code to response, await makes it return a future to save
           await http.post(
@@ -136,9 +173,11 @@ class Products with ChangeNotifier {
     } catch (error) {
       rethrow;
     }
-      _items.removeWhere((prod) => prod.id == id);
-      //_items.add(newProduct1);
-      _items.insert(0, newProduct1);
+    }
+
+      // _items.removeWhere((prod) => prod.id == id);
+      // //_items.add(newProduct1);
+      // _items.insert(0, newProduct1);
   }
 
 //======================================================================================================================
@@ -155,8 +194,24 @@ class Products with ChangeNotifier {
     }
   }
 
-  void deleteProduct(String id) {
-    _items.removeWhere((prod) => prod.id == id);
+  // void deleteProduct(String id) {
+  //  
+  //   notifyListeners();
+  // }
+
+  Future<void> deleteProduct(String id) async {
+    final url = Uri.https('shopstop-a9a9a-default-rtdb.firebaseio.com', '/products/$id.json');
+    final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
+    Product? existingProduct = _items[existingProductIndex];
+     _items.removeWhere((prod) => prod.id == id);
     notifyListeners();
+    final response = await http.delete(url);
+    if (response.statusCode >= 400) {
+      _items.insert(existingProductIndex, existingProduct);
+      notifyListeners();
+      throw const HttpException('Could not delete product.');
+    }
+    existingProduct = null;
   }
 }
+

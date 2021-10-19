@@ -30,6 +30,7 @@ class UserProductScreen extends StatelessWidget {
                 Navigator.of(context).pushNamed(
                   EditProduct.routeName, arguments: false
                 );
+
               },),
         ],
       ),
