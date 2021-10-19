@@ -92,7 +92,7 @@ class Products with ChangeNotifier {
           description: prodData['description'],
           price: prodData['price'],
           imageUrl: prodData['imageUrl'],
-          //isFavorite: prodData['isFavorite']
+          isFavorite: prodData['isFavorite']
         ));
       });
       _items = loadedProd;

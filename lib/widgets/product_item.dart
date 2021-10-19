@@ -1,3 +1,5 @@
+
+
 import 'package:flutter/material.dart';
 import 'package:shopstop/providers/cart.dart';
 import '../providers/products.dart';
@@ -15,6 +17,8 @@ class productItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final scaf = Scaffold.of(context);
     //++++++++++++++++++++providers=======================
 
     final product = Provider.of<Product>(context, listen: false);
@@ -50,14 +54,22 @@ class productItem extends StatelessWidget {
           backgroundColor: Colors.black54,
 
 //===================  using consumer ==========================
-
+          
           leading: Consumer<Product>(
             builder: (ctx, product, child) => IconButton(
               icon: (product.isFavorite
                   ? const Icon(Icons.favorite_rounded)
                   : const Icon(Icons.favorite_outline_sharp)),
-              onPressed: () {
-                product.toggleFavoriteStatus(product.id);
+              onPressed: () async{
+              try{  
+               product.toggleFavoriteStatus(product.id);
+               product.isFavorite?
+              scaf.showSnackBar(const SnackBar(content: Text('Added to favorites')))
+              :   scaf.showSnackBar(const SnackBar(content: Text('Removed from favorites')));
+              }
+              catch(error){
+                  scaf.showSnackBar(const SnackBar(content: Text('Not able to add to favorites!')));
+              }
               },
               // ignore: deprecated_member_use
               color: Theme.of(context).accentColor,
