@@ -5,9 +5,15 @@ import '../providers/cart.dart';
 import '../widgets/cart_item.dart' as ci;
 import '../providers/products.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   static const routeName = '/cart';
 
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  var _isloading = false;
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<Cart>(context);
@@ -50,26 +56,67 @@ class CartScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
+
+//======================================================================================================
+
+                  
                   TextButton(
-                    child: Text(
+                    child: 
+                    _isloading? 
+                    const CircularProgressIndicator(strokeWidth: 10,)
+                    :
+                    Text(
                       'Checkout',
-                      style: (TextStyle(
+                      style: (
+                      (cart.totalAmount <=0 || _isloading == true)
+                      ? 
+                      TextStyle(
+                          color: Colors.grey[400],
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18)
+                           :
+                      TextStyle(
                           color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.bold,
                           fontSize: 20)),
                     ),
-                    onPressed: () {
-                      Provider.of<Orders>(context, listen: false).addOrder(
+                    onPressed: (cart.totalAmount <=0 || _isloading == true)? null : 
+                    () async {
+                      setState(() {
+                        _isloading =true;
+                      });
+                      await Provider.of<Orders>(context, listen: false).addOrder(
                           cart.items.values.toList(), 
                           cart.totalAmount);
+                          setState(() {
+                            _isloading =false;
+                          });
                           cart.clear();
                     },
+                    
                   ),
+
+//======================================================================================================
+
+
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 100),
+          (cart.totalAmount <=0)?
+          Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(children: [
+            const Center(child: Text('Uh, oh! Cart Empty!', style: TextStyle(color: Colors.red, fontSize: 15),),),
+            const SizedBox(height: 10),
+            Center(child: ElevatedButton(onPressed: Navigator.of(context).pop, child: const Text('Go back to Products',style: TextStyle(color: Colors.white, fontSize: 15) )),),
+              //const Center(child: Text('and add some products', style: TextStyle(color: Colors.green,fontSize: 15),),),
+            ],),
+          )
+         
+          
+          :
           Expanded(
             child: ListView.builder(
               itemCount: cart.itemCount,

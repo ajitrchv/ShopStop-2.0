@@ -75,9 +75,10 @@ class Products with ChangeNotifier {
   //=============================================================================
 
   Future<void> fetchAndSetProducts() async {
-    final Uri url = Uri.https(
-        'shopstop-a9a9a-default-rtdb.firebaseio.com', '/products.json');
     try {
+    final Uri url = Uri.parse(
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json');
+    
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final List<Product> loadedProd = [];
@@ -99,6 +100,7 @@ class Products with ChangeNotifier {
       //print(loadedProd);
       notifyListeners();
     } catch (error) {
+      print(error);
      rethrow;
     }
   }
@@ -108,10 +110,10 @@ class Products with ChangeNotifier {
     var response;
     var newProduct1;
     if(id != ''){
-    final Uri url =
-        Uri.https(
-        'shopstop-a9a9a-default-rtdb.firebaseio.com', '/products.json');
-    try {
+    try {final Uri url =
+        Uri.parse(
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json');
+    
       final response1 = //adds the following code to response, await makes it return a future to save
           await http.post(
         url,
@@ -137,15 +139,17 @@ class Products with ChangeNotifier {
       deleteProduct(id);
       notifyListeners();
     } catch (error) {
+      print(error);
       rethrow;
     }
     }
     //========================================================================
     else{
-    final Uri url =
-        Uri.https(
-        'shopstop-a9a9a-default-rtdb.firebaseio.com', '/products.json');
     try {
+    final Uri url =
+        Uri.parse(
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json');
+    
       final response1 = //adds the following code to response, await makes it return a future to save
           await http.post(
         url,
@@ -171,6 +175,7 @@ class Products with ChangeNotifier {
       deleteProduct(id);
       notifyListeners();
     } catch (error) {
+      print(error);
       rethrow;
     }
     }
@@ -200,7 +205,8 @@ class Products with ChangeNotifier {
   // }
 
   Future<void> deleteProduct(String id) async {
-    final url = Uri.https('shopstop-a9a9a-default-rtdb.firebaseio.com', '/products/$id.json');
+    final url = Uri.parse(
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products/$id.json');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     Product? existingProduct = _items[existingProductIndex];
      _items.removeWhere((prod) => prod.id == id);
