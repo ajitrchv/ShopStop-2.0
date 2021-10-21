@@ -100,7 +100,7 @@ class Products with ChangeNotifier {
       //print(loadedProd);
       notifyListeners();
     } catch (error) {
-      print(error);
+      print('User not authenticated/$error');
      rethrow;
     }
   }

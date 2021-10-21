@@ -111,11 +111,11 @@ class _EditProductState extends State<EditProduct> {
                 style: Theme.of(context).textTheme.headline6,
               ),
               content: const Text(
-                  'No internet. Please connect to a WiFi network or turn on Mobile Data'),
+                  'No connection to the DB. Please ask your developer to fucking fix the DB or try connecting to a WiFi network or turn on Mobile Data'),
                   actions: [
                     TextButton(onPressed: () {
                       Navigator.of(ctx).pop();
-                    }, child: const Text('Okay, Im a terrible user.'))
+                    }, child: const Text('I\'ll fucking do that right away!'))
                   ],
             )),
       );

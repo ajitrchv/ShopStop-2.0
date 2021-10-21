@@ -38,6 +38,7 @@ class _ProductsOverviewState extends State<ProductsOverview> {
 
   @override
   void didChangeDependencies() {
+    try{
     if (_isinit) {
       setState(() {
         _isLoading = true;
@@ -52,6 +53,10 @@ class _ProductsOverviewState extends State<ProductsOverview> {
     setState(() {
       _isinit = false;
     });
+    }
+    catch(error){
+      print('User not authenticated/$error');
+    }
 
     super.didChangeDependencies();
   }
