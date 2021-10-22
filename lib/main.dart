@@ -19,42 +19,58 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        //==========providers==============
-        ChangeNotifierProvider(
-          create: (ctx) => Products()
-        ),
+        providers: [
+          //==========providers==============
+          ChangeNotifierProvider(
+            create: (ctx) => Auth(),
+          ),
 
-        ChangeNotifierProvider(
-          create: (ctx) => Cart(),
-        ),
-        ChangeNotifierProvider(
-          create: (ctx) => Orders(),
-        ),
+          ChangeNotifierProxyProvider<Auth, Products>(
+            
+             create: (ctx) => Products('', []), 
 
-        ChangeNotifierProvider(
-          create:  (ctx) => Auth(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'ShopStop',
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-          // ignore: deprecated_member_use
-          accentColor: Colors.deepOrangeAccent,
-          fontFamily: 'Lato',
-        ),
-        home: AuthScreen(),
-        routes: {
-          ProductDetail.routeName: (ctx) => ProductDetail(),
-          CartScreen.routeName: (ctx) => CartScreen(),
-          OrderScreen.routeName: (ctx) => OrderScreen(),
-          UserProductScreen.routeName: (ctx) => UserProductScreen(),
-          EditProduct.routeName: (ctx) => EditProduct(),
-          AuthScreen.routeName: (ctx) => AuthScreen(),
-        },
-      ),
-    );
+
+            update:  (ctx, auth, previousProducts) => 
+            Products(auth.token, previousProducts == null ?
+             [] : previousProducts.items),
+
+            
+            ),
+
+          ChangeNotifierProvider(
+            create: (ctx) => Cart(),
+          ),
+          ChangeNotifierProvider(
+            create: (ctx) => Orders(),
+          ),
+
+
+        ],
+
+
+//======================================================================================
+
+        child: Consumer<Auth>(
+          builder: (ctx, auth, _) => MaterialApp(
+            title: 'ShopStop',
+            theme: ThemeData(
+              primarySwatch: Colors.green,
+              // ignore: deprecated_member_use
+              accentColor: Colors.deepOrangeAccent,
+              fontFamily: 'Lato',
+            ),
+            home: auth.isAuth? ProductsOverview() : AuthScreen(),
+            routes: {
+              ProductDetail.routeName: (ctx) => ProductDetail(),
+              CartScreen.routeName: (ctx) => CartScreen(),
+              OrderScreen.routeName: (ctx) => OrderScreen(),
+              UserProductScreen.routeName: (ctx) => UserProductScreen(),
+              EditProduct.routeName: (ctx) => EditProduct(),
+              AuthScreen.routeName: (ctx) => AuthScreen(),
+              ProductsOverview.routeName: (ctx) => ProductsOverview(),
+            },
+          ),
+        ));
   }
 }
 

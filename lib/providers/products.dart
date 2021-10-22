@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:shopstop/widgets/product_item.dart';
 import 'product.dart';
 
 class Products with ChangeNotifier {
@@ -43,7 +44,15 @@ class Products with ChangeNotifier {
   //   ),
   // ];
 
-  var _showFavoritesOnly = false;
+  // var _showFavoritesOnly = false;
+
+
+  String? authToken;
+  void update(String token)
+  {
+    authToken = token;
+  }
+  Products(this.authToken, this._items);
 
   List<Product> get items {
     // if(_showFavoritesOnly){
@@ -77,17 +86,18 @@ class Products with ChangeNotifier {
   Future<void> fetchAndSetProducts() async {
     try {
     final Uri url = Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json');
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      print(extractedData);
       final List<Product> loadedProd = [];
       extractedData.forEach((prodId, prodData) {
-        // print(prodId);
-        // print(prodData['description'],);
-        // print(prodData['price']);
-        // print(prodData['imageUrl']);
-        loadedProd.insert(0,Product(
+         print(prodId);
+         print(prodData['description'],);
+         print(prodData['price']);
+         print(prodData['imageUrl']);
+        loadedProd.add(Product(
           id: prodId,
           title: prodData['title'],
           description: prodData['description'],

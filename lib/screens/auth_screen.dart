@@ -1,4 +1,7 @@
 import 'dart:math';
+import 'package:shopstop/models/http_exception.dart';
+import 'package:shopstop/screens/products_overview.dart';
+
 import '../providers/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -98,7 +101,7 @@ class AuthCard extends StatefulWidget {
 class _AuthCardState extends State<AuthCard> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
-  Map<String, String> _authData = {
+  final Map<String, String> _authData = {
     'email': '',
     'password': '',
   };
@@ -114,6 +117,7 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
+    try{
     if (_authMode == AuthMode.Login) {
       // Log user in================================================================================================
 
@@ -124,9 +128,44 @@ class _AuthCardState extends State<AuthCard> {
 
      await Provider.of<Auth>(context, listen: false).signup(_authData['email'], _authData['password'],);
     }
-    setState(() {
+    //Navigator.of(context).pushReplacementNamed(ProductsOverview.routeName);
+    }on HttpException catch(error){
+      var errorMessage = ' Authentication Failed!';
+      if(error.toString().contains('EMAIL_EXISTS')){errorMessage = 'Already registered with this mail id!\nPlease Log In.';}
+      else if(error.toString().contains('INVALID_EMAIL'))
+      {errorMessage = 'This Email is Invalid!';}
+      else if(error.toString().contains('WEAK_PASSWORD'))
+      {errorMessage = 'This password is too weak';}
+      else if(error.toString().contains('EMAIL_NOT_FOUND'))
+      {
+        errorMessage = 'This Email doesn\'t exists in our library!';
+      }
+      else if(error.toString().contains('INVALID_PASSWORD'))
+      {
+        errorMessage = 'Password is invalid!';
+      }
+      _showErrorDialog(errorMessage);
+     
+    }catch(error){
+      const errorMessage = 'Couldn\'t authenticate. Please try after some time!';
+      _showErrorDialog(errorMessage);
+    }
+
+      setState(() {
       _isLoading = false;
     });
+  }
+
+  void _showErrorDialog(String Message){
+    showDialog(context: context, builder:(ctx)=> 
+     AlertDialog(title: const Text('Uh,Oh!', style: TextStyle(color: Colors.red),), content: Text(Message), actions: 
+     [TextButton(
+              onPressed: () {Navigator.pop(context); setState(() {
+                _authMode = AuthMode.Login;
+              }); },
+              child: const Text('OK'),
+            ),],)
+    );
   }
 
   void _switchAuthMode() {
@@ -168,7 +207,7 @@ class _AuthCardState extends State<AuthCard> {
                       return 'Invalid email!';
                     }
                     return null;
-                    return null;
+
                   },
                   onSaved: (value) {
                     _authData['email'] = value!;
