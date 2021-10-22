@@ -47,12 +47,20 @@ class Products with ChangeNotifier {
   // var _showFavoritesOnly = false;
 
 
-  String? authToken;
+  String? _authToken;
+  set authToken(String value) {
+  _authToken = value;
+ }
+
+  String? _userId;
+ set userId(String userIdValue) {
+  _userId = userIdValue;
+ }
   void update(String token)
   {
     authToken = token;
   }
-  Products(this.authToken, this._items);
+  Products(this._authToken, this._items, this._userId);
 
   List<Product> get items {
     // if(_showFavoritesOnly){
@@ -83,27 +91,39 @@ class Products with ChangeNotifier {
 
   //=============================================================================
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts([bool filterByUser = false]) async {
     try {
-    final Uri url = Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json?auth=$authToken');
+    final filterString = filterByUser ? 'orderBy="creatorId"&equalTo="$_userId"' : ''; 
+    var url = Uri.parse(
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json?auth=$_authToken&$filterString');
     
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      print(extractedData);
+      if(extractedData == null){return;}
+
+      url = Uri.parse(
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/userFavourites/$_userId.json?auth=$_authToken');
+    
+
+      final favoriteResponse = await http.get(url);
+      final favoriteData =  json.decode(favoriteResponse.body);
+
+
       final List<Product> loadedProd = [];
       extractedData.forEach((prodId, prodData) {
-         print(prodId);
-         print(prodData['description'],);
-         print(prodData['price']);
-         print(prodData['imageUrl']);
+        //  print(prodId);
+        //  print(prodData['description'],);
+        //  print(prodData['price']);
+        //  print(prodData['imageUrl']);
         loadedProd.add(Product(
           id: prodId,
           title: prodData['title'],
           description: prodData['description'],
           price: prodData['price'],
           imageUrl: prodData['imageUrl'],
-          isFavorite: prodData['isFavorite']
+          isFavorite:favoriteData == null ? 
+          false : 
+          favoriteData[prodId] ?? false,
         ));
       });
       _items = loadedProd;
@@ -122,7 +142,7 @@ class Products with ChangeNotifier {
     if(id != ''){
     try {final Uri url =
         Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json?auth=$authToken');
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json?auth=$_authToken');
     
       final response1 = //adds the following code to response, await makes it return a future to save
           await http.post(
@@ -132,8 +152,8 @@ class Products with ChangeNotifier {
           'description': product.description,
           'imageUrl': product.imageUrl,
           'price': product.price,
-          'isFavorite': product.isFavorite,
-          // 'id':
+          //'creatorId': _userId,
+
         }),
       );
       response = response1;
@@ -158,7 +178,7 @@ class Products with ChangeNotifier {
     try {
     final Uri url =
         Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json?auth=$authToken');
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json?auth=$_authToken');
     
       final response1 = //adds the following code to response, await makes it return a future to save
           await http.post(
@@ -168,7 +188,7 @@ class Products with ChangeNotifier {
           'description': product.description,
           'imageUrl': product.imageUrl,
           'price': product.price,
-          'isFavorite': product.isFavorite,
+          'creatorId': _userId,
           // 'id':
         }),
       );
@@ -185,7 +205,7 @@ class Products with ChangeNotifier {
       deleteProduct(id);
       notifyListeners();
     } catch (error) {
-      print(error);
+      //print(error);
       rethrow;
     }
     }
@@ -216,7 +236,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products/$id.json?auth=$_authToken');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     Product? existingProduct = _items[existingProductIndex];
      _items.removeWhere((prod) => prod.id == id);

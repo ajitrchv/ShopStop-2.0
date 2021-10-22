@@ -64,7 +64,8 @@ class productItem extends StatelessWidget {
                   : const Icon(Icons.favorite_outline_sharp)),
               onPressed: () async{
               try{  
-               product.toggleFavoriteStatus(product.id, authData.token);
+               product.toggleFavoriteStatus( authData.token, authData.userId
+               );
                product.isFavorite?{
               ScaffoldMessenger.of(context).hideCurrentSnackBar(),
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added to favorites')))
