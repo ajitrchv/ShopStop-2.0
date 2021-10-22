@@ -122,7 +122,7 @@ class Products with ChangeNotifier {
     if(id != ''){
     try {final Uri url =
         Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json');
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     
       final response1 = //adds the following code to response, await makes it return a future to save
           await http.post(
@@ -158,7 +158,7 @@ class Products with ChangeNotifier {
     try {
     final Uri url =
         Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json');
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products.json?auth=$authToken');
     
       final response1 = //adds the following code to response, await makes it return a future to save
           await http.post(
@@ -216,7 +216,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products/$id.json');
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products/$id.json?auth=$authToken');
     final existingProductIndex = _items.indexWhere((prod) => prod.id == id);
     Product? existingProduct = _items[existingProductIndex];
      _items.removeWhere((prod) => prod.id == id);

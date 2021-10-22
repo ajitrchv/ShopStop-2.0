@@ -1,5 +1,6 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:shopstop/providers/auth.dart';
 import 'package:shopstop/providers/cart.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -22,7 +23,8 @@ class OrderItem {
 
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
-
+  final String? authToken;
+  Orders(this.authToken, this._orders);
   List<OrderItem> get orders {
     return [..._orders];
   }
@@ -31,7 +33,7 @@ class Orders with ChangeNotifier {
     try{
     final Uri url =
         Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/orders.json');
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/orders.json?auth=$authToken');
     final response = await http.get(url);
     final List<OrderItem> loadedOrders = [];
     final extractedData = json.decode(response.body) as Map<String, dynamic>;
@@ -75,7 +77,7 @@ class Orders with ChangeNotifier {
     try{
     final Uri url =
         Uri.parse(
-        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/orders.json');
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/orders.json?auth=$authToken');
     final timestamp = DateTime.now();
     final response = await http.post(url,
         body: json.encode({

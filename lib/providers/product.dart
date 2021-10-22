@@ -16,15 +16,17 @@ class Product with ChangeNotifier{
   final String description;
   final double price;
   final String imageUrl;
+  //final String token;
 
   bool isFavorite;
 
-  void toggleFavoriteStatus(id) async{
+  void toggleFavoriteStatus(id, String? token) async{
     
     
     final oldStatus = isFavorite;
     isFavorite = !isFavorite;
-    final url = Uri.https('shopstop-a9a9a-default-rtdb.firebaseio.com', '/products/$id.json');
+    final url = Uri.parse(
+        'https://shopstop-a9a9a-default-rtdb.firebaseio.com/products/$id.json?auth=$token');
     try{
     final response = await http.get(url);
     final extractedData = json.decode(response.body) as Map<String, dynamic>;

@@ -6,6 +6,7 @@ import '../providers/products.dart';
 import '../providers/product.dart';
 import '../screens/product_detail_screen.dart';
 import 'package:provider/provider.dart';
+import '../providers/auth.dart';
 
 class productItem extends StatelessWidget {
   //const productItem({ Key? key }) : super(key: key);
@@ -22,7 +23,8 @@ class productItem extends StatelessWidget {
     //++++++++++++++++++++providers=======================
 
     final product = Provider.of<Product>(context, listen: false);
-    final cart = Provider.of<Cart>(context);
+    final cart = Provider.of<Cart>(context,listen: false);
+    final authData = Provider.of<Auth>(context, listen: false);
 
     //==================================================
     return ClipRRect(
@@ -53,7 +55,7 @@ class productItem extends StatelessWidget {
           ),
           backgroundColor: Colors.black54,
 
-//===================  using consumer ==========================
+//===================  using consumer =======================S===
           
           leading: Consumer<Product>(
             builder: (ctx, product, child) => IconButton(
@@ -62,10 +64,15 @@ class productItem extends StatelessWidget {
                   : const Icon(Icons.favorite_outline_sharp)),
               onPressed: () async{
               try{  
-               product.toggleFavoriteStatus(product.id);
-               product.isFavorite?
-              scaf.showSnackBar(const SnackBar(content: Text('Added to favorites')))
-              :   scaf.showSnackBar(const SnackBar(content: Text('Removed from favorites')));
+               product.toggleFavoriteStatus(product.id, authData.token);
+               product.isFavorite?{
+              ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Added to favorites')))
+               }
+              :   {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Removed from favorites')))
+                };
               }
               catch(error){
                   scaf.showSnackBar(const SnackBar(content: Text('Not able to add to favorites!')));
