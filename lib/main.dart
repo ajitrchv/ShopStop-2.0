@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopstop/screens/splash_screen.dart';
 import '../screens/auth_screen.dart';
 import '../providers/orders.dart';
 import '../providers/cart.dart';
@@ -26,32 +27,26 @@ class MyApp extends StatelessWidget {
           ),
 
           ChangeNotifierProxyProvider<Auth, Products>(
-            
-             create: (ctx) => Products('', [], ''), 
-
-
-            update:  (ctx, auth, previousProducts) => 
-            Products(auth.token,
-            previousProducts == null ?
-             [] : previousProducts.items, auth.userId),
-
-            
-            ),
+            create: (ctx) => Products('', [], ''),
+            update: (ctx, auth, previousProducts) => Products(
+                auth.token,
+                previousProducts == null ? [] : previousProducts.items,
+                auth.userId),
+          ),
 
           ChangeNotifierProvider(
             create: (ctx) => Cart(),
           ),
 
           ChangeNotifierProxyProvider<Auth, Orders>(
-            create: (ctx) => Orders('','',[]),
-            update: (ctx, auth, previousOrders) => 
-            Orders(auth.token,auth.userId, previousOrders == null ?
-            [] : previousOrders.orders,),
+            create: (ctx) => Orders('', '', []),
+            update: (ctx, auth, previousOrders) => Orders(
+              auth.token,
+              auth.userId,
+              previousOrders == null ? [] : previousOrders.orders,
+            ),
           ),
-
-
         ],
-
 
 //======================================================================================
 
@@ -64,7 +59,16 @@ class MyApp extends StatelessWidget {
               accentColor: Colors.deepOrangeAccent,
               fontFamily: 'Lato',
             ),
-            home: auth.isAuth ? ProductsOverview() : AuthScreen(),
+            home: auth.isAuth
+                ? ProductsOverview()
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (ctx, authResultSnapshot) =>
+                        authResultSnapshot.connectionState ==
+                                ConnectionState.waiting
+                            ? SplashScreen()
+                            : AuthScreen(),
+                  ),
             routes: {
               ProductDetail.routeName: (ctx) => ProductDetail(),
               CartScreen.routeName: (ctx) => CartScreen(),
