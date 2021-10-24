@@ -13,6 +13,7 @@ import './screens/orders_screen.dart';
 import './screens/user_products_screen.dart';
 import '../screens/edit_product.dart';
 import '../providers/auth.dart';
+import '../helpers/custom_route.dart';
 
 void main() => runApp(MyApp());
 
@@ -58,6 +59,11 @@ class MyApp extends StatelessWidget {
               // ignore: deprecated_member_use
               accentColor: Colors.deepOrangeAccent,
               fontFamily: 'Lato',
+              pageTransitionsTheme: PageTransitionsTheme
+              (builders: {
+                TargetPlatform.android: CustomPageTransitionBuilder(),
+                TargetPlatform.iOS: CustomPageTransitionBuilder(),
+                },)
             ),
             home: auth.isAuth
                 ? ProductsOverview()
